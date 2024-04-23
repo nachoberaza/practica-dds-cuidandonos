@@ -1,0 +1,51 @@
+@startuml
+class Usuario{
+    tipo : TipoUsuario
+    nombre: String
+    apellido : String
+    edad : Integer
+    genero : String
+
+}
+
+interface TipoUsuario{
+}
+
+class Transeunte {
+    + avisarLlegueBien()
+}
+
+class Cuidador {
+}
+
+class Ruta{
+    seguimiento : TipoSeguimiento
+    inicio : Direccion
+    paradas : []Direccion
+}
+
+interface TipoSeguimiento{}
+
+class SeguimientoPorTiempo{}
+
+class SeguimientoEstadoDeSalud{}
+
+class Direccion{
+    calle : String
+    codigoPostal : String
+    altura : String
+}
+
+class Incidente{
+}
+
+
+Usuario *-- TipoUsuario
+TipoUsuario <|.. Transeunte
+TipoUsuario <|.. Cuidador
+
+Ruta *-- TipoSeguimiento
+TipoSeguimiento <|.. SeguimientoPorTiempo
+TipoSeguimiento <|.. SeguimientoEstadoDeSalud
+
+@enduml
