@@ -4,13 +4,19 @@ class Usuario{
     nombre: String
     apellido : String
     edad : Integer
-    genero : String
+    sexo : Sexo
     direccion : Direccion
+    + configurarEstrategiaDeIncidente(EstrategiaAnteIncidente)
+}
+
+enum Sexo{
+    Masculino
+    Femenino
+    Otro
 }
 
 interface TipoUsuario{
-    comenzarViaje()
-    finalizarViaje()
+    'TODO: Falta definir un metodo para esta interfaz'
 }
 
 class Transeunte {
@@ -25,10 +31,26 @@ class Cuidador {
     - rechazarCuidado()
 }
 
+class Viaje{
+    ruta: Ruta
+    transeunte: Transeunte
+    cuidador: Cuidador
+    estado : EstadoViaje
+    + comenzar()
+    + finalizar()
+}
+
+enum EstadoViaje{
+    EnCurso
+    EnEspera
+    Finalizado
+}
+
 class Ruta{
     inicio : Direccion
     fin : Direccion
     duracion : Integer
+    + calcularDuracionAproximada()
 }
 
 'Mediante esta interfaz se implementa el patron strategy para la reaccion ante incidentes'
@@ -55,11 +77,18 @@ class Direccion{
 
 Usuario *-- TipoUsuario
 Usuario o-- Direccion
+Usuario o-- EstrategiaAnteIncidente
+Usuario -- Sexo
 
 TipoUsuario <|.. Transeunte
 TipoUsuario <|.. Cuidador
 
 Transeunte *-- EstrategiaAnteIncidente
+
+Viaje o-- Ruta
+Viaje o-- Transeunte
+Viaje o-- Cuidador
+Viaje -- EstadoViaje
 
 Ruta o-- Direccion
 

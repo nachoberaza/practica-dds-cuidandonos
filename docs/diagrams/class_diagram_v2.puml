@@ -4,7 +4,7 @@ class Usuario{
     nombre: String
     apellido : String
     edad : Integer
-    genero : String
+    sexo : String
     direccion : Direccion
 }
 
