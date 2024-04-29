@@ -1,6 +1,6 @@
 @startuml
 class Usuario{
-    tipo : TipoUsuario
+    estado : Estado
     nombre: String
     apellido : String
     edad : Integer
@@ -15,35 +15,40 @@ enum Sexo{
     Otro
 }
 
-interface TipoUsuario{
-    'TODO: Falta definir un metodo para esta interfaz'
+interface Estado{
+    'TODO: Que metodo podria ir en esta interfaz??'
 }
+
+note right of Estado
+    Implementacion del patron
+    **State** para un usuario
+    transeunte o cuidador.
+end note
 
 class Transeunte {
     accionAnteIncidente : EstrategiaAnteIncidente
 
-    + seleccionarCuidador([]Usuario)
-    - llegueBien()
+    + seleccionarCuidador(List<Usuario>)
+    + comenzarViaje() : Viaje
+    + llegueBien(Viaje)
 }
 
 class Cuidador {
+    + confirmarCuidado(Viaje)
     - aceptarCuidado()
     - rechazarCuidado()
 }
 
 class Viaje{
     ruta: Ruta
-    transeunte: Transeunte
-    cuidador: Cuidador
     estado : EstadoViaje
     + comenzar()
     + finalizar()
 }
 
 enum EstadoViaje{
-    EnCurso
-    EnEspera
-    Finalizado
+    EN_CURSO
+    FINALIZADO
 }
 
 class Ruta{
@@ -53,10 +58,16 @@ class Ruta{
     + calcularDuracionAproximada()
 }
 
-'Mediante esta interfaz se implementa el patron strategy para la reaccion ante incidentes'
 interface EstrategiaAnteIncidente {
     ejecutarEstrategia()
 }
+
+note left of EstrategiaAnteIncidente
+    Implementacion del patron
+    **Strategy** para que un usuario
+    pueda elegir como actuar ante
+    un incidente.
+end note
 
 class NotificarCuidador{}
 
@@ -75,19 +86,19 @@ class Direccion{
     altura : String
 }
 
-Usuario *-- TipoUsuario
+Usuario *-- Estado
 Usuario o-- Direccion
 Usuario o-- EstrategiaAnteIncidente
 Usuario -- Sexo
 
-TipoUsuario <|.. Transeunte
-TipoUsuario <|.. Cuidador
+Estado <|.. Transeunte
+Estado <|.. Cuidador
 
 Transeunte *-- EstrategiaAnteIncidente
 
 Viaje o-- Ruta
-Viaje o-- Transeunte
-Viaje o-- Cuidador
+Transeunte o-- Viaje
+Cuidador o-- Viaje
 Viaje -- EstadoViaje
 
 Ruta o-- Direccion

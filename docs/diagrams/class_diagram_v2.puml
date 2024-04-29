@@ -1,39 +1,79 @@
 @startuml
 class Usuario{
-    tipo : TipoUsuario
+    estado : Estado
     nombre: String
     apellido : String
     edad : Integer
-    sexo : String
+    sexo : Sexo
     direccion : Direccion
+    + configurarEstrategiaAnteIncidente(EstrategiaAnteIncidente) : void
 }
 
-interface TipoUsuario{
-    comenzarViaje()
-    finalizarViaje()
+enum Sexo{
+    Masculino
+    Femenino
+    Otro
+}
+
+interface Estado{
+    'TODO: Que metodo podria ir en esta interfaz??'
 }
 
 class Transeunte {
     accionAnteIncidente : EstrategiaAnteIncidente
 
-    + seleccionarCuidador([]Usuario)
-    - llegueBien()
+    + generarViaje() : Viaje
+    - definirCuidador(candidatos : List<Usuario>) : void
+    + comenzarViaje(Viaje) : void
+    + llegueBien(Viaje) : void
 }
 
 class Cuidador {
-    - aceptarCuidado()
-    - rechazarCuidado()
+    + confirmarCuidado(Viaje) : void
+    - aceptarCuidado(Viaje) : void
+    - rechazarCuidado(Viaje) : void
+}
+
+class Viaje {
+    ruta: Ruta
+    estado : EstadoViaje
+    seguimiento : EstrategiaSeguimiento
+    + comenzar() : void
+    + finalizar() : void
+}
+
+enum EstadoViaje{
+    EN_CURSO
+    FINALIZADO
 }
 
 class Ruta{
     inicio : Direccion
-    fin : Direccion
+    paradas : List<Parada>
     duracion : Integer
+    + CalcularDuracion() : Integer
 }
 
-'Mediante esta interfaz se implementa el patron strategy para la reaccion ante incidentes'
+class Parada {
+    direccion : Direccion
+    TiempoDemora : Integer
+}
+
+interface EstrategiaSeguimiento {
+    seguir()
+}
+
+class SeguimientoPorNotificacionLlegada implements EstrategiaSeguimiento {
+    + notificarLlegada(nroParada : Integer) : void
+}
+
+class SeguimientoPorTiempoParada implements EstrategiaSeguimiento {
+    + definirTiempoPorParada() : void
+    - calcularDemoraTotal() : void
+}
+
 interface EstrategiaAnteIncidente {
-    ejecutarEstrategia()
+    ejecutarEstrategia() : void
 }
 
 class NotificarCuidador{}
@@ -53,13 +93,22 @@ class Direccion{
     altura : String
 }
 
-Usuario *-- TipoUsuario
+'Relaciones'
+Usuario *-- Estado
 Usuario o-- Direccion
+Usuario o-- EstrategiaAnteIncidente
+Usuario -- Sexo
 
-TipoUsuario <|.. Transeunte
-TipoUsuario <|.. Cuidador
+Estado <|.. Transeunte
+Estado <|.. Cuidador
 
 Transeunte *-- EstrategiaAnteIncidente
+
+Viaje o-- Ruta
+Transeunte o-- Viaje
+Cuidador o-- Viaje
+Viaje -- EstadoViaje
+Viaje *-- EstrategiaSeguimiento
 
 Ruta o-- Direccion
 
@@ -67,5 +116,25 @@ EstrategiaAnteIncidente <|.. NotificarCuidador
 EstrategiaAnteIncidente <|.. NotificarCelular
 EstrategiaAnteIncidente <|.. NotificarPolicia
 EstrategiaAnteIncidente <|.. Esperar
+
+'Notas'
+note bottom of EstrategiaSeguimiento
+    Implementacion del patron
+    **Strategy** para que un usuario
+    pueda elegir como seguir un viaje.
+end note
+
+note left of Estado
+    Implementacion del patron
+    **State** para un usuario
+    transeunte o cuidador.
+end note
+
+note left of EstrategiaAnteIncidente
+    Implementacion del patron
+    **Strategy** para que un usuario
+    pueda elegir como actuar ante
+    un incidente.
+end note
 
 @enduml
