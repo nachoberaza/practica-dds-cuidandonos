@@ -55,7 +55,7 @@ class Ruta{
     inicio : Direccion
     fin : Direccion
     duracion : Integer
-    + calcularDuracionAproximada()
+    + calcularDuracion()
 }
 
 interface EstrategiaAnteIncidente {

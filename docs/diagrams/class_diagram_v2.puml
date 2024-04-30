@@ -1,6 +1,6 @@
 @startuml
 class Usuario{
-    estado : Estado
+    tipoUsuario : TipoUsuario
     nombre: String
     apellido : String
     edad : Integer
@@ -15,20 +15,22 @@ enum Sexo{
     Otro
 }
 
-interface Estado{
+interface TipoUsuario{
     'TODO: Que metodo podria ir en esta interfaz??'
 }
 
-class Transeunte {
+class Transeunte implements TipoUsuario {
     accionAnteIncidente : EstrategiaAnteIncidente
 
     + generarViaje() : Viaje
-    - definirCuidador(candidatos : List<Usuario>) : void
     + comenzarViaje(Viaje) : void
     + llegueBien(Viaje) : void
+    - solicitarAcompañamiento() : void
+    - definirCuidador(candidatos : List<Usuario>) : void
+    - notificarCuidador() : void
 }
 
-class Cuidador {
+class Cuidador implements TipoUsuario {
     + confirmarCuidado(Viaje) : void
     - aceptarCuidado(Viaje) : void
     - rechazarCuidado(Viaje) : void
@@ -56,11 +58,11 @@ class Ruta{
 
 class Parada {
     direccion : Direccion
-    TiempoDemora : Integer
+    tiempoDemora : Integer
 }
 
 interface EstrategiaSeguimiento {
-    seguir()
+    calcularDemora(List<Parada>)
 }
 
 class SeguimientoPorNotificacionLlegada implements EstrategiaSeguimiento {
@@ -69,19 +71,19 @@ class SeguimientoPorNotificacionLlegada implements EstrategiaSeguimiento {
 
 class SeguimientoPorTiempoParada implements EstrategiaSeguimiento {
     + definirTiempoPorParada() : void
+    - demoraPorTramo(paradaA : Direccion, paradaB : Direccion) : Integer
 }
 
 interface EstrategiaAnteIncidente {
     ejecutarEstrategia() : void
 }
 
-class NotificarCuidador{}
+class NotificarCuidadores{}
 
 class NotificarPolicia{}
 
 class NotificarCelular{}
 
-'TODO: Checkear si estan bien parametrizados los minutos'
 class Esperar{
     - esperar(minutos : Integer)
 }
@@ -93,13 +95,10 @@ class Direccion{
 }
 
 'Relaciones'
-Usuario *-- Estado
+Usuario *-- TipoUsuario
 Usuario o-- Direccion
 Usuario o-- EstrategiaAnteIncidente
 Usuario -- Sexo
-
-Estado <|.. Transeunte
-Estado <|.. Cuidador
 
 Transeunte *-- EstrategiaAnteIncidente
 
@@ -107,8 +106,9 @@ Viaje o-- Ruta
 Transeunte o-- Viaje
 Cuidador o-- Viaje
 Viaje -- EstadoViaje
-Viaje *-- EstrategiaSeguimiento
 
+Ruta o-- Parada
+Ruta *-- EstrategiaSeguimiento
 Ruta o-- Direccion
 
 EstrategiaAnteIncidente <|.. NotificarCuidador
@@ -117,13 +117,13 @@ EstrategiaAnteIncidente <|.. NotificarPolicia
 EstrategiaAnteIncidente <|.. Esperar
 
 'Notas'
-note left of EstrategiaSeguimiento
+note right of EstrategiaSeguimiento
     Implementacion del patron
     **Strategy** para que un usuario
     pueda elegir como seguir un viaje.
 end note
 
-note left of Estado
+note left of TipoUsuario
     Implementacion del patron
     **State** para un usuario
     transeunte o cuidador.
