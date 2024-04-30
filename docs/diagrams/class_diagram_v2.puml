@@ -37,7 +37,6 @@ class Cuidador {
 class Viaje {
     ruta: Ruta
     estado : EstadoViaje
-    seguimiento : EstrategiaSeguimiento
     + comenzar() : void
     + finalizar() : void
 }
@@ -51,7 +50,8 @@ class Ruta{
     inicio : Direccion
     paradas : List<Parada>
     duracion : Integer
-    + CalcularDuracion() : Integer
+    seguimiento : EstrategiaSeguimiento
+    + calcularDuracion() : Integer
 }
 
 class Parada {
@@ -69,7 +69,6 @@ class SeguimientoPorNotificacionLlegada implements EstrategiaSeguimiento {
 
 class SeguimientoPorTiempoParada implements EstrategiaSeguimiento {
     + definirTiempoPorParada() : void
-    - calcularDemoraTotal() : void
 }
 
 interface EstrategiaAnteIncidente {
@@ -118,7 +117,7 @@ EstrategiaAnteIncidente <|.. NotificarPolicia
 EstrategiaAnteIncidente <|.. Esperar
 
 'Notas'
-note bottom of EstrategiaSeguimiento
+note left of EstrategiaSeguimiento
     Implementacion del patron
     **Strategy** para que un usuario
     pueda elegir como seguir un viaje.
