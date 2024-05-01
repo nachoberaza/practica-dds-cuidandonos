@@ -1,5 +1,6 @@
-@startuml
-class Usuario{
+@startuml clases_punto1
+class Usuario {
+    tipo : TipoUsuario
     nombre: String
     apellido : String
     edad : Integer
@@ -7,24 +8,24 @@ class Usuario{
     direccion : Direccion
 }
 
-class UsuarioPasivo extends Usuario{
-    + confirmarCuidado(Viaje) : bool
-    - aceptarCuidado(Viaje)
-    - rechazarCuidado(Viaje)
-}
-
-enum Sexo{
+enum Sexo {
     Masculino
     Femenino
     Otro
 }
 
-class UsuarioActivo extends UsuarioPasivo {
+interface TipoUsuario {
+    + comenzarViaje(Viaje) : bool
+}
+
+class UsuarioPasivo implements TipoUsuario {
+    + confirmarCuidado(Viaje) : bool
+}
+
+class UsuarioActivo implements TipoUsuario {
     accionAnteIncidente : EstrategiaAnteIncidente
 
-    + comenzarViaje() : Viaje
     + seleccionarCuidador(List<UsuarioPasivo>)
-    + confirmarCuidado(Viaje)
     + llegueBien(Viaje)
 }
 
@@ -75,11 +76,12 @@ class Direccion{
     codigoPostal : String
     altura : String
 }
+Usuario -- Sexo
+Usuario *-- TipoUsuario
 
 Usuario o-- Direccion
 Usuario o-- Viaje
 
-UsuarioPasivo -- Sexo
 UsuarioActivo *-- EstrategiaAnteIncidente
 
 Viaje o-- Ruta

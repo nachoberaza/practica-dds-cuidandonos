@@ -1,5 +1,6 @@
-@startuml
+@startuml clases_punto2
 class Usuario{
+    tipo : TipoUsuario
     nombre: String
     apellido : String
     edad : Integer
@@ -7,21 +8,21 @@ class Usuario{
     direccion : Direccion
 }
 
-class UsuarioPasivo extends Usuario {
-    + confirmarCuidado(Viaje) : bool
-    - aceptarCuidado(Viaje) : void
-    - rechazarCuidado(Viaje) : void
+interface TipoUsuario{
+    comenzarViaje(Viaje) : void
 }
 
-class UsuarioActivo extends UsuarioPasivo {
+class UsuarioPasivo implements TipoUsuario {
+    - confirmarCuidado(Viaje) : bool
+}
+
+class UsuarioActivo implements TipoUsuario {
     accionAnteIncidente : EstrategiaAnteIncidente
 
-    + solicitarViaje() : Viaje
-    + comenzarViaje() : Viaje
-    + seleccionarCuidador(List<UsuarioPasivo>)
-    + confirmarCuidado(Viaje)
-    + llegueBien(Viaje)
     - solicitarAcompañamiento() : void
+    + solicitarViaje() : Viaje
+    + seleccionarCuidador(List<UsuarioPasivo>) : void
+    + llegueBien(Viaje) : void
 }
 
 enum Sexo{
@@ -45,10 +46,10 @@ enum EstadoViaje{
 }
 
 class Ruta{
-    inicio : Direccion
     paradas : List<Parada>
     duracion : Integer
     seguimiento : EstrategiaSeguimiento
+    estrategiaDuracion : EstrategiaDeCalculoDeDuracion
     + calcularDuracion() : Integer
 }
 
@@ -58,7 +59,19 @@ class Parada {
 }
 
 interface EstrategiaSeguimiento {
-    calcularDemora(List<Parada>)
+    ejecutarSeguimiento(List<Parada>) : void
+}
+
+interface EstrategiaDeCalculoDeDuracion {
+    calcularDuracion(List<Parada>) : Integer
+}
+
+class calculoDemoraPorDefault implements EstrategiaDeCalculoDeDuracion{
+    - calcularDuracionAproximada() : Integer
+}
+
+class calculoDemoraPorTramo implements EstrategiaDeCalculoDeDuracion {
+    - calcularDemoraPorTramo(paradaA : Parada, paradaB : Parada) : Integer
 }
 
 class SeguimientoPorNotificacionLlegada implements EstrategiaSeguimiento {
@@ -92,18 +105,21 @@ class Direccion{
 'Relaciones'
 Usuario o-- Direccion
 Usuario -- Sexo
+Usuario o-- Viaje
 
 UsuarioActivo *-- EstrategiaAnteIncidente
 UsuarioActivo o-- Viaje
 
-UsuarioPasivo o-- Viaje
+Usuario *-- TipoUsuario
 
 Viaje o-- Ruta
 Viaje -- EstadoViaje
 
 Ruta o-- Parada
 Ruta *-- EstrategiaSeguimiento
-Ruta o-- Direccion
+Ruta *-- EstrategiaDeCalculoDeDuracion
+
+Parada o-- Direccion
 
 EstrategiaAnteIncidente <|.. NotificarCuidadores
 EstrategiaAnteIncidente <|.. NotificarCelular
@@ -111,7 +127,7 @@ EstrategiaAnteIncidente <|.. NotificarPolicia
 EstrategiaAnteIncidente <|.. Esperar
 
 'Notas'
-note right of EstrategiaSeguimiento
+note left of EstrategiaSeguimiento
     Implementacion del patron
     **Strategy** para que un usuario
     pueda elegir como seguir un viaje.
@@ -122,6 +138,12 @@ note left of EstrategiaAnteIncidente
     **Strategy** para que un usuario
     pueda elegir como actuar ante
     un incidente.
+end note
+
+note left of EstrategiaDeCalculoDeDuracion
+    Implementacion del patron
+    **Strategy** para que una ruta
+    pueda calcular su duracion.
 end note
 
 @enduml
