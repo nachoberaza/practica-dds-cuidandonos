@@ -1,12 +1,16 @@
 @startuml
 class Usuario{
-    estado : Estado
     nombre: String
     apellido : String
     edad : Integer
     sexo : Sexo
     direccion : Direccion
-    + configurarEstrategiaDeIncidente(EstrategiaAnteIncidente)
+}
+
+class UsuarioPasivo extends Usuario{
+    + confirmarCuidado(Viaje) : bool
+    - aceptarCuidado(Viaje)
+    - rechazarCuidado(Viaje)
 }
 
 enum Sexo{
@@ -15,33 +19,20 @@ enum Sexo{
     Otro
 }
 
-interface Estado{
-    'TODO: Que metodo podria ir en esta interfaz??'
-}
-
-note right of Estado
-    Implementacion del patron
-    **State** para un usuario
-    transeunte o cuidador.
-end note
-
-class Transeunte {
+class UsuarioActivo extends UsuarioPasivo {
     accionAnteIncidente : EstrategiaAnteIncidente
 
-    + seleccionarCuidador(List<Usuario>)
     + comenzarViaje() : Viaje
-    + llegueBien(Viaje)
-}
-
-class Cuidador {
+    + seleccionarCuidador(List<UsuarioPasivo>)
     + confirmarCuidado(Viaje)
-    - aceptarCuidado()
-    - rechazarCuidado()
+    + llegueBien(Viaje)
 }
 
 class Viaje{
     ruta: Ruta
     estado : EstadoViaje
+    transeunte : Usuario
+    cuidador : Usuario
     + comenzar()
     + finalizar()
 }
@@ -75,7 +66,6 @@ class NotificarPolicia{}
 
 class NotificarCelular{}
 
-'TODO: Checkear si estan bien parametrizados los minutos'
 class Esperar{
     - esperar(minutos : Integer)
 }
@@ -86,19 +76,13 @@ class Direccion{
     altura : String
 }
 
-Usuario *-- Estado
 Usuario o-- Direccion
-Usuario o-- EstrategiaAnteIncidente
-Usuario -- Sexo
+Usuario o-- Viaje
 
-Estado <|.. Transeunte
-Estado <|.. Cuidador
-
-Transeunte *-- EstrategiaAnteIncidente
+UsuarioPasivo -- Sexo
+UsuarioActivo *-- EstrategiaAnteIncidente
 
 Viaje o-- Ruta
-Transeunte o-- Viaje
-Cuidador o-- Viaje
 Viaje -- EstadoViaje
 
 Ruta o-- Direccion

@@ -1,12 +1,27 @@
 @startuml
 class Usuario{
-    tipoUsuario : TipoUsuario
     nombre: String
     apellido : String
     edad : Integer
     sexo : Sexo
     direccion : Direccion
-    + configurarEstrategiaAnteIncidente(EstrategiaAnteIncidente) : void
+}
+
+class UsuarioPasivo extends Usuario {
+    + confirmarCuidado(Viaje) : bool
+    - aceptarCuidado(Viaje) : void
+    - rechazarCuidado(Viaje) : void
+}
+
+class UsuarioActivo extends UsuarioPasivo {
+    accionAnteIncidente : EstrategiaAnteIncidente
+
+    + solicitarViaje() : Viaje
+    + comenzarViaje() : Viaje
+    + seleccionarCuidador(List<UsuarioPasivo>)
+    + confirmarCuidado(Viaje)
+    + llegueBien(Viaje)
+    - solicitarAcompañamiento() : void
 }
 
 enum Sexo{
@@ -15,30 +30,11 @@ enum Sexo{
     Otro
 }
 
-interface TipoUsuario{
-    'TODO: Que metodo podria ir en esta interfaz??'
-}
-
-class Transeunte implements TipoUsuario {
-    accionAnteIncidente : EstrategiaAnteIncidente
-
-    + generarViaje() : Viaje
-    + comenzarViaje(Viaje) : void
-    + llegueBien(Viaje) : void
-    - solicitarAcompañamiento() : void
-    - definirCuidador(candidatos : List<Usuario>) : void
-    - notificarCuidador() : void
-}
-
-class Cuidador implements TipoUsuario {
-    + confirmarCuidado(Viaje) : void
-    - aceptarCuidado(Viaje) : void
-    - rechazarCuidado(Viaje) : void
-}
-
 class Viaje {
     ruta: Ruta
     estado : EstadoViaje
+    cuidador : Usuario
+    transeunte : Usuario
     + comenzar() : void
     + finalizar() : void
 }
@@ -70,7 +66,6 @@ class SeguimientoPorNotificacionLlegada implements EstrategiaSeguimiento {
 }
 
 class SeguimientoPorTiempoParada implements EstrategiaSeguimiento {
-    + definirTiempoPorParada() : void
     - demoraPorTramo(paradaA : Direccion, paradaB : Direccion) : Integer
 }
 
@@ -95,23 +90,22 @@ class Direccion{
 }
 
 'Relaciones'
-Usuario *-- TipoUsuario
 Usuario o-- Direccion
-Usuario o-- EstrategiaAnteIncidente
 Usuario -- Sexo
 
-Transeunte *-- EstrategiaAnteIncidente
+UsuarioActivo *-- EstrategiaAnteIncidente
+UsuarioActivo o-- Viaje
+
+UsuarioPasivo o-- Viaje
 
 Viaje o-- Ruta
-Transeunte o-- Viaje
-Cuidador o-- Viaje
 Viaje -- EstadoViaje
 
 Ruta o-- Parada
 Ruta *-- EstrategiaSeguimiento
 Ruta o-- Direccion
 
-EstrategiaAnteIncidente <|.. NotificarCuidador
+EstrategiaAnteIncidente <|.. NotificarCuidadores
 EstrategiaAnteIncidente <|.. NotificarCelular
 EstrategiaAnteIncidente <|.. NotificarPolicia
 EstrategiaAnteIncidente <|.. Esperar
@@ -121,12 +115,6 @@ note right of EstrategiaSeguimiento
     Implementacion del patron
     **Strategy** para que un usuario
     pueda elegir como seguir un viaje.
-end note
-
-note left of TipoUsuario
-    Implementacion del patron
-    **State** para un usuario
-    transeunte o cuidador.
 end note
 
 note left of EstrategiaAnteIncidente

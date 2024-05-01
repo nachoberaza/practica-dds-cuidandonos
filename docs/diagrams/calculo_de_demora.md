@@ -1,3 +1,6 @@
+# Cálculo de demora
+
+```pseudo
 class Ruta{
     private paradas : list<Paradas>
     private estrategiaDeSeguimiento
@@ -21,3 +24,4 @@ class EstrategiaDeSeguimientoPorParadas{
     }
 
 }
+```
